@@ -1,16 +1,15 @@
-- name : Configure Docker on EC2 Instances
-  hosts : all
+- name: Deploy Docker Container on App Node
+  hosts: app
   become: true
-  connection : ssh
-  tasks : 
-  - name: updating apt
-    command : sudo apt-get update
+  tasks:
+    - name: Stop existing container
+      shell: docker ps -q --filter "ancestor=vipinms90/finance-me:1.0" | xargs -r docker stop
 
-  - name : Install Docker
-    command : sudo apt-get install -y docker.io
+    - name: Remove stopped container
+      shell: docker ps -a -q --filter "ancestor=vipinms90/finance-me:1.0" | xargs -r docker rm
 
-  - name : Start Docker Service
-    command : sudo systemctl start docker
+    - name: Pull Docker image
+      shell: docker pull vipinms90/finance-me:1.0
 
-  - name: Deploy Docker Container
-    command: docker run -itd -p 8084:8081 shubhamkushwah123/finance-me:1.0
+    - name: Run Docker container
+      shell: docker run -d -p 8081:8081 vipinms90/finance-me:1.0

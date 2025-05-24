@@ -1,15 +1,18 @@
 - name: Deploy Docker Container on App Node
-  hosts: app
+  hosts: app_node
   become: true
   tasks:
-    - name: Stop existing container
-      shell: docker ps -q --filter "ancestor=vipinms90/finance-me:1.0" | xargs -r docker stop
-
-    - name: Remove stopped container
-      shell: docker ps -a -q --filter "ancestor=vipinms90/finance-me:1.0" | xargs -r docker rm
-
-    - name: Pull Docker image
+    - name: Pull Docker image from Docker Hub
       shell: docker pull vipinms90/finance-me:1.0
+
+    - name: Stop existing container if running
+      shell: docker ps -q --filter "ancestor=vipinms90/finance-me:1.0" | xargs -r docker stop
+      ignore_errors: yes
+
+    - name: Remove stopped container if exists
+      shell: docker ps -a -q --filter "ancestor=vipinms90/finance-me:1.0" | xargs -r docker rm
+      ignore_errors: yes
 
     - name: Run Docker container
       shell: docker run -d -p 8081:8081 vipinms90/finance-me:1.0
+
